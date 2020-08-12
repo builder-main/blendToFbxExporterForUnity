@@ -1,4 +1,6 @@
+import bpy
 blender249 = True
+blender280 = (2,80,0) <= bpy.app.version
 import sys
 
 try: import Blender
@@ -6,17 +8,18 @@ except:
 	blender249 = False
 	import bpy	
 
-if blender249:
-	try: import export_fbx
-	except:
-		print('error: export_fbx not found.')
-		Blender.Quit()
-else:
-	try: import io_scene_fbx.export_fbx
-	except:
-		print('error: io_scene_fbx.export_fbx not found.')
-		# This might need to be bpy.Quit()
-		raise
+if not blender280:
+    if blender249:
+        try: import export_fbx
+        except:
+            print('error: export_fbx not found.')
+            Blender.Quit()
+    else:
+        try: import io_scene_fbx.export_fbx
+        except:
+            print('error: io_scene_fbx.export_fbx not found.')
+            # This might need to be bpy.Quit()
+            raise
 
 # Accept command line arguments and load the contents of the .blend file
 infile = sys.argv[5]
@@ -27,7 +30,20 @@ outfile = sys.argv[6]
 # Do the conversion
 print("Starting blender to FBX conversion " + outfile)
 
-if blender249:
+if blender280:
+    import bpy.ops
+    bpy.ops.export_scene.fbx(filepath=outfile,
+        check_existing=False,
+        use_selection=False,
+        use_active_collection=False,
+        object_types= {'ARMATURE','CAMERA','LIGHT','MESH','OTHER','EMPTY'},
+        use_mesh_modifiers=True,
+        mesh_smooth_type='OFF',
+        use_custom_props=True,
+        bake_anim_use_nla_strips=False,
+        bake_anim_use_all_actions=False,
+        apply_scale_options='FBX_SCALE_ALL')
+elif blender249:
 	mtx4_x90n = Blender.Mathutils.RotationMatrix(-90, 4, 'x')
 	export_fbx.write(outfile,
 		EXP_OBS_SELECTED=False,
