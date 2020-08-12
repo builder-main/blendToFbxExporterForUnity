@@ -19,3 +19,8 @@ Blender's directory, path to args-Unity-BlenderToFBX.py, input directory (with b
 blender --background --python "E:\blendToFbxExporterForUnity\blendToFbxExporter.py" -- "E:\blendToFbxExporterForUnity\args-Unity-BlenderToFBX.py" "E:\NewUnityProject\Assets"	
 
 # it deletes the .blend files so make a backup
+
+
+/Applications/Blender2.83.4.app/Contents/MacOS/Blender  --background --python "/Users/jonaathan/Documents/GitHub/blendToFbxExporterForUnity/blendToFbxExporter.py" -- "/Users/jonaathan/Documents/GitHub/blendToFbxExporterForUnity/args-Unity-BlenderToFBX.py" "/Users/jonaathan/Desktop/models/"
+
+# doesn't delete .blend anymore
