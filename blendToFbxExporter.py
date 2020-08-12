@@ -47,7 +47,7 @@ else:
                 outfile=outfilename
             )
             status = subprocess.call(proc, shell=True)
-            os.remove(infile)
+#            os.remove(infile)
             processedFiles.append(infile)
         
     configfiles = [os.path.join(dirpath, f) 
