@@ -40,14 +40,16 @@ else:
         if os.path.isfile(outfilename):
             alreadyHaveFBX.append(infile)
         else:
-            proc = ("{pathToBlender} --background --python {pathToBlenderToFBX} -- {infile} {outfile}").format(
-                pathToBlender=pathToBlender,
-                pathToBlenderToFBX=pathToBlenderToFBX,
-                infile=infile,
-                outfile=outfilename
+            proc = ('"{pathToBlender}" --background --python "{pathToBlenderToFBX}" -- "{infile}" "{outfile}"').format(
+                pathToBlender=pathToBlender.replace('/', '\\'),
+                pathToBlenderToFBX=pathToBlenderToFBX.replace('/', '\\'),
+                infile=infile.replace('/', '\\'),
+                outfile=outfilename.replace('/', '\\')
             )
-            status = subprocess.call(proc, shell=True)
-#            os.remove(infile)
+            print(proc)
+            status = subprocess.run([pathToBlender, "--background", "--python", pathToBlenderToFBX, "--", infile, outfilename], stdout=subprocess.PIPE)
+            print(status.stdout.decode('utf-8'))
+            os.remove(infile)
             processedFiles.append(infile)
         
     configfiles = [os.path.join(dirpath, f) 
