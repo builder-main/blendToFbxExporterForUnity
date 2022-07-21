@@ -3,6 +3,58 @@ blender249 = True
 blender280 = (2,80,0) <= bpy.app.version
 import sys
 
+#
+# FUNCTION TO APPLY ALL SHARED MODIFIERS
+#
+def ApplySharedModifiers():
+    #start by OBJECT mode and deselect all
+    objs = bpy.data.objects
+    oLen = len(objs)
+    #1. Group by shared mesh data
+    groups = {}
+    for obj in objs:
+        meshDataName = obj.data.name
+
+        if not groups.get(meshDataName):
+            groups[meshDataName] = [] 
+            print("Shared Mesh "+meshDataName)
+            
+        groups[meshDataName].append(obj)
+        print("\tAdd object"+obj.name)
+        
+    #2. Keep groups with shared only data and modifiers.
+    for groupName in groups:
+        # check same modifiers
+        group = groups[groupName]
+        modifiers = group[0].modifiers
+        print("Checking shared "+groupName)
+        groupValid = ''
+        for modifier in modifiers:
+            print("\tChecking modifier "+modifier.name)
+            for obj in group[1:]:
+              if obj.modifiers.find(modifier.name) == -1:
+                  groupValid = obj.name+"."+modifier.name
+                  break
+        if not groupValid == '': 
+            print("\tNot Shared "+groupValid)
+            continue            
+        
+        #3. Apply to geometry modifiers on first group data    
+        #print("\tgroup[0].convert(target='MESH')")
+        #group[0].to_mesh()
+        bpy.context.view_layer.objects.active = group[0]
+        group[0].select_set(state=True)
+        #bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.convert(target='MESH')
+        group[0].select_set(state=False)
+        
+
+        #4. clean modifiers for other
+        for obj in group[1:]:
+            #print("\tobj.modifiers.clear()")
+            obj.modifiers.clear()
+
+		
 try: import Blender
 except:
 	blender249 = False
@@ -29,6 +81,9 @@ outfile = sys.argv[6]
 
 # Do the conversion
 print("Starting blender to FBX conversion " + outfile)
+
+#APPLY ALL SHARED MODIFIERS
+ApplySharedModifiers()
 
 if blender280:
     import bpy.ops
