@@ -1,4 +1,5 @@
 import bpy
+import bmesh
 blender249 = True
 blender280 = (2,80,0) <= bpy.app.version
 import sys
@@ -13,6 +14,11 @@ def ApplySharedModifiers():
     #1. Group by shared mesh data
     groups = {}
     for obj in objs:
+
+        if obj.data is None:
+            print("No mesh data for "+obj.name)
+            continue       
+
         meshDataName = obj.data.name
 
         if not groups.get(meshDataName):
@@ -26,12 +32,8 @@ def ApplySharedModifiers():
     for groupName in groups:
         # check same modifiers
         group = groups[groupName]
-        modifiers = group[0].modifiers
-			        
-        if len(modifiers) == 0:
-            print("\tNo modifier on "+group[0].name)
-            continue   
-	
+        mainObject = group[0]
+        modifiers = mainObject.modifiers
         print("Checking shared "+groupName)
         groupValid = ''
         for modifier in modifiers:
@@ -42,26 +44,30 @@ def ApplySharedModifiers():
                   break
         if not groupValid == '': 
             print("\tNot Shared "+groupValid)
-            continue
-		
-
-        
+            continue       
+             
+        if len(modifiers) == 0:
+            print("\tNo modifier on "+mainObject.name)
+            continue   
+              
         #3. Apply to geometry modifiers on first group data    
-        #print("\tgroup[0].convert(target='MESH')")
-        #group[0].to_mesh()
-        bpy.context.view_layer.objects.active = group[0]
-        group[0].select_set(state=True)
-        #bpy.ops.object.mode_set(mode='OBJECT')
-        bpy.ops.object.convert(target='MESH')
-        group[0].select_set(state=False)
+        bpy.context.view_layer.objects.active = mainObject
+        mainObject.select_set(state=True)
+        bpy.ops.object.mode_set(mode='OBJECT')
+        #low level convert
+        depGraph = bpy.context.evaluated_depsgraph_get()        
+        bm = bmesh.new()
+        bm.from_object(mainObject, depGraph)
+        bm.to_mesh(mainObject.data)
         
-
+        mainObject.select_set(state=False)
+        
         #4. clean modifiers for other
-        for obj in group[1:]:
+        for obj in group:
             #print("\tobj.modifiers.clear()")
             obj.modifiers.clear()
 
-		
+	
 try: import Blender
 except:
 	blender249 = False
