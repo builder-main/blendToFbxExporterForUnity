@@ -27,6 +27,11 @@ def ApplySharedModifiers():
         # check same modifiers
         group = groups[groupName]
         modifiers = group[0].modifiers
+			        
+        if len(modifiers) == 0:
+            print("\tNo modifier on "+group[0].name)
+            continue   
+	
         print("Checking shared "+groupName)
         groupValid = ''
         for modifier in modifiers:
@@ -37,7 +42,9 @@ def ApplySharedModifiers():
                   break
         if not groupValid == '': 
             print("\tNot Shared "+groupValid)
-            continue            
+            continue
+		
+
         
         #3. Apply to geometry modifiers on first group data    
         #print("\tgroup[0].convert(target='MESH')")
