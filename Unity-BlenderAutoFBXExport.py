@@ -14,6 +14,12 @@ bl_info = {
     "warning": "",  # used for warning icon and text in addons panel
     "category": "System"}
 
+def UNDO():
+    try:
+        bpy.ops.ed.undo()
+        print("success")
+    except:
+        print("fail")
 
 # FUNCTION TO APPLY ALL SHARED MODIFIERS
 #
@@ -138,6 +144,10 @@ def ExportUnityFbx(dummy):
         return
     
     print(".uniblend ext detectect file will be exported for unity")
+
+    #Push the undo
+    bpy.ops.ed.undo_push(message = "Uniblend Restore point")
+
     dirpath =  os.path.dirname(bpy.data.filepath)
     outname = bpy.path.display_name_from_filepath(bpy.data.filepath)
 #    outname = outname.replace(".","") #replace the unity hiding prefix    
@@ -152,7 +162,7 @@ def ExportUnityFbx(dummy):
     try:
         ApplySharedModifiers()
     except Exception as e:
-        print("Couldn't apply modifiers, see exception below. Will continue with default behaviour") 
+        print("Couldn't apply modifiers, see exception below. Will continue with default behaviour.")
         print(e) 
 
 #    if blender280:
@@ -218,6 +228,8 @@ def ExportUnityFbx(dummy):
 #        # HQ normals are not supported in the current exporter
 
     print("Finished blender to FBX conversion " + outfile)
+    print("Undo file, if saving will remove all shared modifiers.")
+    UNDO();
     
 def register():
     if not ExportUnityFbx in bpy.app.handlers.save_post:
@@ -226,6 +238,7 @@ def register():
 def unregister():
     if ExportUnityFbx in bpy.app.handlers.save_post:
         bpy.app.handlers.save_post.remove(ExportUnityFbx)
+
         
 if __name__ == "__main__":
     register()
